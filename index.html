@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta property="og:title" content="js sample" />
+    <script src="https://cdn.jsdelivr.net/npm/statsig-js@5.1.0/build/statsig-prod-web-sdk.min.js"></script>
+    <script>
+        document.addEventListener("DOMContentLoaded", async function() {
+            const clientAPIKey = 'client-UmquJ4EgoZJbLRkoIPPQuM68mpaQKPv7aU4JBRrhucq';
+            const experimentId = 'or_pricing';
+            const userID = 'override-user-id'; 
+
+            try {
+                console.log("Initializing Statsig...");
+
+                await statsig.initialize(clientAPIKey, {
+                    userID: userID
+                });
+                console.log("User:  ", userID);
+
+                console.log("Statsig initialized successfully.");
+                
+                console.log("Fetching experiment...");
+                const experiment = statsig.getExperiment(experimentId);
+                const evalDetails = experiment.getEvaluationDetails();
+                const hideFreeplanValue = experiment.get('hide_freeplan', false); // Default value set to false
+
+                console.log("Experiment fetched, hideFreeplanValue:", hideFreeplanValue);
+
+                // Add experiment information to the DOM
+                const body = document.querySelector('body');
+
+                const experimentInfo = document.createElement('div');
+                experimentInfo.innerHTML = `
+                    <h1>Experiment Information</h1>
+                    <p><strong>User ID:</strong> ${userID}</p>
+                    <p><strong>Experiment ID:</strong> ${experimentId}</p>
+                    <p><strong>Hide Free Plan Value:</strong> ${hideFreeplanValue}</p>
+                    <p><strong>Evaluation Details:</strong> ${JSON.stringify(evalDetails)}</p>
+                `;
+
+                body.appendChild(experimentInfo);
+
+            } catch (error) {
+                console.error("Statsig initialization or experiment fetch failed:", error);
+                
+                // Display error message
+                const body = document.querySelector('body');
+                const errorMessage = document.createElement('p');
+                errorMessage.textContent = "An error occurred while fetching experiment information.";
+                body.appendChild(errorMessage);
+            }
+
+            const clearButton = document.createElement('button');
+            clearButton.textContent = 'Clear Local Storage';
+            clearButton.addEventListener('click', function() {
+                localStorage.clear();
+                alert('Local storage cleared!');
+            });
+
+            document.body.appendChild(clearButton);
+        });
+    </script>
+</head>
+<body>
+</body>
+</html>
